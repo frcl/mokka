@@ -24,4 +24,23 @@ EOF
 " end python script
 endfunc
 
-nnoremap <leader>rl :call RunLine()<cr>
+func! RunLine2()
+    python3 << EOF
+import code
+import re
+clno, _ = vim.current.window.cursor
+cb = vim.current.buffer
+spaces_last = re.match(r'^(\s*)', cb[clno-2]).group(1)
+interpreter = code.InteractiveInterpreter()
+compiled = compile('\n'.join(cb[0:clno-1]+[spaces_last+'pass']),
+                   filename=cb.name,
+                   mode='exec')
+#for line in cb[0:clno]:
+#    interpreter.runsource(line)
+interpreter.runcode(compiled)
+interpreter.runsource(cb[clno-1])
+EOF
+endfunc
+
+
+nnoremap <leader>rl :call RunLine2()<cr>
