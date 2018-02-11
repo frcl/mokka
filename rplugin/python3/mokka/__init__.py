@@ -1,7 +1,7 @@
-import neovim
-
-import code
 import re
+
+import neovim
+from .interpreter import Interpreter
 
 
 @neovim.plugin
@@ -21,13 +21,16 @@ class Mokka(object):
             spaces = re.match(r'^(\s*)', buf[lineno-2]).group(1)
             spaces += '    ' if buf[lineno-2].strip().endswith(':') else ''
 
-            interpreter = code.InteractiveInterpreter()
+            interpreter = Interpreter(filename=buf.name)
 
-            # complie with `pass` appended using precalulated spaces
-            compiled = compile('\n'.join(buf[0:lineno-1]+[spaces+'pass']),
-                               filename=buf.name,
-                               mode='exec')
+            # run with `pass` appended using precalulated spaces
+            source = '\n'.join(buf[0:lineno-1]+[spaces+'pass'])
 
-            interpreter.runcode(compiled)
-            status = interpreter.runsource(buf[lineno-1], symbol='eval')
-            self.nvim.current.line += str(status)
+            if interpreter.exec(source):
+                pass # TODO: show traceback
+            else:
+                value = interpreter.eval(buf[lineno-1])
+                rep = str(value).replace('\n', '')
+                if len(rep) > 32:
+                    rep = rep[:29]+'...'
+                buf[lineno-1] = buf[lineno-1][:-1] + rep
