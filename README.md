@@ -2,7 +2,8 @@
 
 ## Installation
 
-Like any other vim plugin.
+Like any other vim plugin, with your favorite plugin manager.
+Your then have to `:UpdateRemotePlugins`. Done.
 
 ## Usage
 
