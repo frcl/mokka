@@ -1,6 +1,6 @@
 import sys
 import pytest
-from mokka.interpreter import Interpreter
+from ..interpreter import Interpreter
 
 
 @pytest.fixture
