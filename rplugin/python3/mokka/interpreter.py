@@ -1,4 +1,5 @@
-from typing import Optional, Union
+import types
+from typing import Optional
 
 
 class Interpreter(object):
@@ -7,11 +8,11 @@ class Interpreter(object):
     the `code` module, but non interactive.
     """
 
-    def __init__(self, filename: str):
+    def __init__(self, filename: str) -> None:
         self.locals = {'__name__': '__console__', '__doc__': None}
         self.filename = filename
 
-    def compile(self, source: str, mode: str):
+    def compile(self, source: str, mode: str) -> types.CodeType:
         """
         Wrapper around builtin compile function.
 
