@@ -56,5 +56,6 @@ class Interpreter(object):
         except (OverflowError, SyntaxError, ValueError) as exc:
             return exc
 
+        # TODO: handle other exceptions?
         exec(code, self.locals)
         return None
