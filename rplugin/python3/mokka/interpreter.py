@@ -1,5 +1,7 @@
+# pylint: disable=eval-used,exec-used,broad-except
 import types
-from typing import Optional
+import ast
+from typing import Optional, Union
 
 
 class Interpreter(object):
@@ -12,7 +14,7 @@ class Interpreter(object):
         self.locals = {'__name__': '__console__', '__doc__': None}
         self.filename = filename
 
-    def compile(self, source: str, mode: str) -> types.CodeType:
+    def compile(self, source: Union[ast.AST, str], mode: str) -> types.CodeType:
         """
         Wrapper around builtin compile function.
 
@@ -40,8 +42,22 @@ class Interpreter(object):
             code = self.compile(source, 'eval')
         except (OverflowError, SyntaxError, ValueError) as exc:
             return exc
+            # TODO: remove line number and filename from error, it's confusing
 
-        return eval(code, self.locals)
+        return self.eval_code(code)
+
+    def eval_code(self, code: types.CodeType) -> object:
+        """
+        Evaluate a compiled expression in the context of the virtual
+        interpreter.
+
+        Returns:
+        - the object resulting from evaluation if the expression is valid
+        """
+        try:
+            return eval(code, self.locals)
+        except Exception as exc:
+            return exc
 
     def exec(self, source: str) -> Optional[Exception]:
         """
@@ -57,6 +73,19 @@ class Interpreter(object):
         except (OverflowError, SyntaxError, ValueError) as exc:
             return exc
 
-        # TODO: handle other exceptions?
-        exec(code, self.locals)
-        return None
+        return self.exec_code(code)
+
+    def exec_code(self, code: types.CodeType) -> Optional[Exception]:
+        """
+        Execute the source inside the virtual interpreter.
+
+        Returns:
+        - None if the execution was sucessfull
+        - an exception if there is a SyntaxError, ValueError or OverflowError
+        """
+        try:
+            exec(code, self.locals)
+        except Exception as exc:
+            return exc
+        else:
+            return None

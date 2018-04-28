@@ -1,7 +1,7 @@
 import re
 
 import neovim
-from .interpreter import Interpreter
+from .wrapper import Wrapper
 
 
 @neovim.plugin
@@ -26,23 +26,15 @@ class Mokka(object):
         lineno, _ = self.nvim.current.window.cursor
         buf = self.nvim.current.buffer
 
-        # match current indention level and
-        # append spaces if last line end with ':'
-        spaces = re.match(r'^(\s*)', buf[lineno-2]).group(1)
-        spaces += '    ' if buf[lineno-2].strip().endswith(':') else ''
+        wrapper = Wrapper(buf)
 
-        interpreter = Interpreter(filename=buf.name)
+        try:
+            rep = wrapper.eval_line(lineno)
+        except ValueError:
+            return
 
-        # run with `pass` appended using precalulated spaces
-        source = '\n'.join(buf[0:lineno-1]+[spaces+'pass'])
+        maxlen = 64
+        short = rep[:maxlen-3] + '...' if len(rep) > maxlen else rep
+        # TODO: get window width for dynamic lenght
 
-        error_status = interpreter.exec(source)
-        if error_status:
-            buf[lineno-1] = buf[lineno-1] + ' # ' + str(error_status)
-            # TODO: reformat error message (no filename if current file
-        else:
-            value = interpreter.eval(buf[lineno-1])
-            rep = str(value).replace('\n', '')
-            if len(rep) > 32:
-                rep = rep[:29]+'...'
-            buf[lineno-1] = buf[lineno-1] + ' # ' + rep
+        buf[lineno-1] = buf[lineno-1] + ' # ' + short

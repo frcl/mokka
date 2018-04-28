@@ -1,1 +1,1 @@
-syntax match evalMarker /#?\s*$/ conceal cchar=#
+"syntax match evalMarker /#?\s*$/ conceal cchar=#
