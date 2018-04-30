@@ -33,7 +33,18 @@ class Mokka(object):
         except ValueError:
             return
 
-        maxlen = 64
+        # this needs serious fixing
+        self.nvim.command(
+            'redir =>a |exe "sil sign place buffer=".bufnr(\'\')|redir end'
+        )
+        self.nvim.command("let signlist=split(a, '\\n')")
+        winwidth = self.nvim.current.window.width
+        textwidth = winwidth - self.nvim.eval(
+            '((&number||&relativenumber) ? &numberwidth : 0)'
+            ' + &foldcolumn + (len(signlist) > 2 ? 2 : 0)'
+        )
+        maxlen = textwidth - len(buf[lineno-1]) - 3
+        # maxlen = self.nvim.current.window.width - len(buf[lineno-1])
         short = rep[:maxlen-3] + '...' if len(rep) > maxlen else rep
         # TODO: get window width for dynamic lenght
 
