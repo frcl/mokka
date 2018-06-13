@@ -8,7 +8,7 @@ class Wrapper(object):
     syntax elements like assignments, for loops and with statements to be
     evaluated in a specific sence
     """
-    ignored_tokens = ('import', 'def', 'for', 'with')
+    ignored_tokens = ('#', 'import', 'from', 'def', 'class', 'for', 'with')
 
     def __init__(self, buf) -> None:
         self.filename = buf.name
@@ -84,9 +84,10 @@ class Wrapper(object):
                 source = node.value
 
             compiled = interpreter.compile(ast.Expression(source), 'eval')
-            value = interpreter.eval_code(compiled)
+            value, error = interpreter.eval_code(compiled)
             # =================
 
-            return self._format_value(value)
+            return (self._format_exc(error) if error
+                    else self._format_value(value))
         else:
             return self.msg

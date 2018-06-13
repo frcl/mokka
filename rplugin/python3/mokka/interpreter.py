@@ -1,7 +1,7 @@
 # pylint: disable=eval-used,exec-used,broad-except
 import types
 import ast
-from typing import Optional, Union
+from typing import Optional, Union, Tuple
 
 
 class Interpreter(object):
@@ -29,7 +29,8 @@ class Interpreter(object):
         """
         return compile(source, self.filename, mode, dont_inherit=True)
 
-    def eval(self, source: str) -> object:
+    def eval(self, source: str) -> Tuple[Optional[object],
+                                         Optional[Exception]]:
         """
         Evaluate an expression in the context of the virtual interpreter.
 
@@ -39,14 +40,14 @@ class Interpreter(object):
         """
 
         try:
-            code = self.compile(source, 'eval')
+            code = self.compile(source, 'eval'), None
         except (OverflowError, SyntaxError, ValueError) as exc:
-            return exc
-            # TODO: remove line number and filename from error, it's confusing
+            return None, exc
 
         return self.eval_code(code)
 
-    def eval_code(self, code: types.CodeType) -> object:
+    def eval_code(self, code: types.CodeType) -> Tuple[Optional[object],
+                                                       Optional[Exception]]:
         """
         Evaluate a compiled expression in the context of the virtual
         interpreter.
@@ -55,9 +56,9 @@ class Interpreter(object):
         - the object resulting from evaluation if the expression is valid
         """
         try:
-            return eval(code, self.locals)
+            return eval(code, self.locals), None
         except Exception as exc:
-            return exc
+            return None, exc
 
     def exec(self, source: str) -> Optional[Exception]:
         """
