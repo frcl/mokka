@@ -1,5 +1,3 @@
-import re
-
 import neovim
 from .wrapper import Wrapper
 
@@ -33,7 +31,7 @@ class Mokka(object):
             ' + &foldcolumn + (len(signlist) > 2 ? 2 : 0)'
         )
         maxlen = textwidth - len(buf[lineno-1]) - 3
-        # maxlen = self.nvim.current.window.width - len(buf[lineno-1])
+
         short = rep[:maxlen-3] + '...' if len(rep) > maxlen else rep
         # TODO: get window width for dynamic lenght
 

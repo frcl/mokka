@@ -90,9 +90,3 @@ class Wrapper(object):
             return self._format_value(value)
         else:
             return self.msg
-
-    def eval_range(self, start: int, end: int) -> object:
-        """
-        experimental
-        """
-        pass
